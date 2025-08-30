@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>InfraLock - PoC</title>
+<style>
+  body {
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    background: #f4f4f7;
+    color: #333;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+  .vault-container {
+    background: #fff;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    width: 350px;
+  }
+  h2 {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    color: #0055aa;
+  }
+  input, button {
+    width: 100%;
+    padding: 0.75rem;
+    margin: 0.5rem 0;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+  }
+  button {
+    background: #0055aa;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+  }
+  button:hover {
+    background: #003f7f;
+  }
+  .status {
+    margin-top: 1rem;
+    text-align: center;
+    font-weight: bold;
+  }
+</style>
+</head>
+<body>
+<div class="vault-container">
+  <h2>InfraLock Vault</h2>
+  <input type="text" id="vaultName" placeholder="Vault Name">
+  <input type="password" id="vaultPassword" placeholder="Vault Password">
+  <input type="number" id="timeLock" placeholder="Time-lock (seconds)">
+  <button onclick="createVault()">Create Vault</button>
+  <div class="status" id="status"></div>
+</div>
+
+<script>
+function createVault() {
+  const name = document.getElementById('vaultName').value;
+  const pass = document.getElementById('vaultPassword').value;
+  const time = parseInt(document.getElementById('timeLock').value);
+
+  if(!name || !pass || !time) {
+    document.getElementById('status').innerText = 'All fields are required!';
+    return;
+  }
+
+  const vaultData = { name, pass, unlockTime: Date.now() + time * 1000 };
+  localStorage.setItem('vault', JSON.stringify(vaultData));
+  document.getElementById('status').innerText = `Vault "${name}" created! Unlock in ${time} sec.`;
+
+  setTimeout(() => {
+    document.getElementById('status').innerText = `Vault "${name}" is now unlocked!`;
+  }, time * 1000);
+}
+</script>
+</body>
+</html>
