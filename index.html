@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>InfraLock Vault</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&family=Roboto:wght@400&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family: 'Roboto', sans-serif;
+  height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  overflow:hidden;
+  background: linear-gradient(-45deg, #0f2027, #203a43, #2c5364, #1e3c72);
+  background-size: 400% 400%;
+  animation: gradientBG 15s ease infinite;
+}
+
+@keyframes gradientBG {
+  0%{background-position:0% 50%;}
+  50%{background-position:100% 50%;}
+  100%{background-position:0% 50%;}
+}
+
+.vault-container {
+  position: relative;
+  width: 400px;
+  max-width: 90%;
+  padding: 2.5rem 2rem;
+  border-radius: 25px;
+  backdrop-filter: blur(20px);
+  background: rgba(255,255,255,0.05);
+  box-shadow: 0 25px 60px rgba(0,0,0,0.6);
+  display:flex;
+  flex-direction: column;
+  align-items:center;
+}
+
+.vault-image {
+  width: 180px;
+  margin-bottom: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+h2 {
+  font-family: 'Poppins', sans-serif;
+  font-size: 2.4rem;
+  color: #00e5ff;
+  margin-bottom: 1rem;
+  text-shadow: 0 0 12px rgba(0,229,255,0.8);
+}
+
+input {
+  width: 100%;
+  padding: 1rem;
+  margin: 0.6rem 0;
+  border-radius: 15px;
+  border: none;
+  outline: none;
+  font-size: 1rem;
+  background: rgba(255,255,255,0.2);
+  color: #fff;
+  transition: 0.3s;
+}
+
+input::placeholder { color: #cfd8dc; }
+
+input:focus {
+  background: rgba(255,255,255,0.35);
+  box-shadow: 0 0 15px #00e5ff;
+}
+
+button {
+  width: 100%;
+  padding: 1.1rem;
+  margin-top: 1rem;
+  border-radius: 15px;
+  border: none;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  background: linear-gradient(135deg, #00e5ff, #00bcd4);
+  color: #fff;
+  transition: 0.3s;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.5);
+}
+
+button:hover {
+  background: linear-gradient(135deg, #00bcd4, #00e5ff);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.6);
+}
+
+.status {
+  margin-top: 1.2rem;
+  min-height: 28px;
+  font-weight: 600;
+  color: #b2ebf2;
+  text-align: center;
+}
+
+.progress-container {
+  width: 100%;
+  height: 14px;
+  background: rgba(255,255,255,0.2);
+  border-radius: 12px;
+  margin-top: 1rem;
+  overflow: hidden;
+  display: none;
+}
+
+.progress-bar {
+  height: 100%;
+  width: 0;
+  background: #00e5ff;
+  transition: width 0.3s;
+}
+
+@media(max-width: 500px){
+  .vault-container { width: 90%; padding: 2rem; }
+  .vault-image { width: 140px; margin-bottom:1rem;}
+  h2 { font-size:2rem; }
+}
+</style>
+</head>
+<body>
+<div class="vault-container">
+  <img src="https://cdn.pixabay.com/photo/2017/03/25/23/01/vault-2170293_1280.png" alt="Vault Image" class="vault-image">
+  <h2>InfraLock Vault</h2>
+  <input type="text" id="vaultName" placeholder="Vault Name">
+  <input type="password" id="vaultPassword" placeholder="Vault Password">
+  <input type="number" id="timeLock" placeholder="Time-lock (seconds)">
+  <button onclick="createVault()">Create Vault</button>
+  <div class="status" id="status"></div>
+  <div class="progress-container" id="progressContainer">
+    <div class="progress-bar" id="progressBar"></div>
+  </div>
+</div>
+
+<script>
+function createVault() {
+  const name = document.getElementById('vaultName').value;
+  const pass = document.getElementById('vaultPassword').value;
+  const time = parseInt(document.getElementById('timeLock').value);
+
+  if(!name || !pass || !time) {
+    document.getElementById('status').innerText = 'All fields are required!';
+    return;
+  }
+
+  const vaultData = { name, pass, unlockTime: Date.now() + time*1000 };
+  localStorage.setItem('vault', JSON.stringify(vaultData));
+  document.getElementById('status').innerText = `Vault "${name}" created! Unlock in ${time} sec.`;
+
+  const progressContainer = document.getElementById('progressContainer');
+  const progressBar = document.getElementById('progressBar');
+  progressContainer.style.display = 'block';
+  progressBar.style.width = '0%';
+
+  let elapsed = 0;
+  const interval = setInterval(() => {
+    elapsed++;
+    const percent = (elapsed / time) * 100;
+    progressBar.style.width = percent + '%';
+    if(elapsed >= time){
+      clearInterval(interval);
+      document.getElementById('status').innerText = `Vault "${name}" is now unlocked!`;
+    }
+  }, 1000);
+}
+</script>
+</body>
+</html>
